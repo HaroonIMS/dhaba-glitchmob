@@ -1,0 +1,46 @@
+# Local test stack. Not used by the pipeline.
+# Run:  export POSTGRES_PASSWORD='choose-something'  &&  docker compose up --build
+# Open: http://localhost:8088
+x-env: &env
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: dhaba
+  POSTGRES_USER: dhaba
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?export POSTGRES_PASSWORD first}
+  REDIS_HOST: redis
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: dhaba
+      POSTGRES_USER: dhaba
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?export POSTGRES_PASSWORD first}
+    volumes:
+      - ../db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+  menu-api:
+    build: { context: ../menu-api, args: { GIT_COMMIT: local } }
+    environment: *env
+    depends_on: [postgres, redis]
+  orders-api:
+    build: { context: ../orders-api, args: { GIT_COMMIT: local } }
+    environment: *env
+    depends_on: [postgres, redis]
+  kitchen-worker:
+    build: { context: ../kitchen-worker, args: { GIT_COMMIT: local } }
+    environment: *env
+    depends_on: [postgres, redis]
+  stats-api:
+    build: { context: ../stats-api, args: { GIT_COMMIT: local } }
+    environment: *env
+    depends_on: [redis]
+  web:
+    build: { context: ../web, args: { GIT_COMMIT: local } }
+  gateway:
+    image: nginx:alpine
+    ports: ["8088:80"]
+    volumes:
+      - ./gateway.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [web, menu-api, orders-api, stats-api]

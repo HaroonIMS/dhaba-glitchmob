@@ -1,0 +1,8 @@
+.git
+target
+src/test
+Dockerfile
+.dockerignore
+.env
+.env.*
+*.md
