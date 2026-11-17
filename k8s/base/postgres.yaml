@@ -44,6 +44,11 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/postgresql/data
+          startupProbe:
+            exec:
+              command: ["pg_isready", "-U", "dhaba"]
+            failureThreshold: 30
+            periodSeconds: 5
           readinessProbe:
             exec:
               command: ["pg_isready", "-U", "dhaba"]
