@@ -1,0 +1,135 @@
+:root {
+  --bg: #eef5f3;
+  --surface: #ffffff;
+  --ink: #10242b;
+  --muted: #55696d;
+  --teal: #0a6e6a;
+  --marigold: #f4a300;
+  --chili: #c8303a;
+  --line: #c9dcd8;
+  --serif: Rockwell, 'Roboto Slab', Georgia, serif;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 1rem/1.5 var(--sans);
+}
+
+.page { max-width: 62rem; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 4px solid var(--teal);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+h1, h2, h3 { font-family: var(--serif); margin: 0 0 0.75rem; }
+h1 { font-size: 2.4rem; line-height: 1; margin: 0; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.1rem; }
+
+nav { display: flex; gap: 0.25rem; }
+nav button {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  border: 2px solid transparent;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+nav button[aria-current='page'] { background: var(--teal); color: #fff; }
+nav button:hover:not([aria-current='page']) { border-color: var(--teal); }
+
+button:focus-visible { outline: 3px solid var(--marigold); outline-offset: 2px; }
+
+.order-layout { display: grid; grid-template-columns: 1fr 18rem; gap: 2rem; align-items: start; }
+@media (max-width: 700px) { .order-layout { grid-template-columns: 1fr; } }
+
+ul, ol { padding: 0; margin: 0; list-style: none; }
+
+.menu li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.dish { font-weight: 600; }
+.price { color: var(--muted); }
+
+.stepper { display: inline-flex; align-items: center; gap: 0.5rem; }
+.stepper button {
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 2px solid var(--teal);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--teal);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.stepper output { min-width: 1.5rem; text-align: center; font-variant-numeric: tabular-nums; }
+
+.ticket, .slip {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-top: 6px solid var(--marigold);
+  border-radius: 0.25rem;
+  padding: 1rem;
+}
+.ticket li { padding: 0.15rem 0; }
+.total { font-family: var(--serif); font-size: 1.25rem; margin: 1rem 0; }
+
+.primary {
+  width: 100%;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.75rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: var(--chili);
+  color: #fff;
+  cursor: pointer;
+}
+.primary:disabled { background: var(--line); color: var(--muted); cursor: not-allowed; }
+
+.notice { padding: 0.5rem 0.75rem; border-radius: 0.25rem; margin: 0.75rem 0 0; }
+.notice.good { background: #dff3e8; color: #0d5a34; }
+.notice.bad { background: #fbe3e5; color: #8a1d27; }
+.muted { color: var(--muted); }
+
+.rail { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+@media (max-width: 700px) { .rail { grid-template-columns: 1fr; } }
+.lane { background: rgba(10, 110, 106, 0.07); border-radius: 0.25rem; padding: 0.75rem; min-height: 12rem; }
+.lane .count {
+  display: inline-block;
+  min-width: 1.6rem;
+  padding: 0 0.4rem;
+  border-radius: 1rem;
+  background: var(--ink);
+  color: #fff;
+  font: 0.85rem/1.6 var(--sans);
+  text-align: center;
+}
+.slip { border-top-color: var(--line); border-style: solid solid dashed; border-bottom-width: 2px; margin-bottom: 0.75rem; }
+.lane.cooking .slip { border-top-color: var(--marigold); }
+.lane.ready .slip { border-top-color: var(--teal); }
+
+.numbers { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 1.5rem; }
+.numbers p { margin: 0; }
+.numbers strong { display: block; font: 700 3rem/1 var(--serif); color: var(--teal); }
+.top li { display: flex; justify-content: space-between; max-width: 24rem; padding: 0.5rem 0; border-bottom: 1px solid var(--line); }
+
+footer { margin-top: 3rem; color: var(--muted); font-size: 0.875rem; }

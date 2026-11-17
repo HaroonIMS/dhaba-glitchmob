@@ -1,0 +1,14 @@
+.git
+tests
+__pycache__
+*.pyc
+.venv
+.ruff_cache
+.pytest_cache
+requirements-dev.txt
+pyproject.toml
+Dockerfile
+.dockerignore
+.env
+.env.*
+*.md
