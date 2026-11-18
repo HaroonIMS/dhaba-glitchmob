@@ -12,3 +12,6 @@ Dockerfile
 .dockerignore
 storage/logs/*
 *.md
+
+# Ignore locally generated Laravel cache files
+bootstrap/cache/*.php
