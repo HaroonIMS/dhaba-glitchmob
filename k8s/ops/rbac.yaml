@@ -1,0 +1,129 @@
+# Cluster-wide read-only monitoring permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ops-monitor-reader
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - pods
+      - events
+      - persistentvolumeclaims
+      - services
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+    verbs: ["get", "list", "watch"]
+
+  - apiGroups: ["metrics.k8s.io"]
+    resources:
+      - nodes
+      - pods
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ops-monitor-reader
+subjects:
+  - kind: ServiceAccount
+    name: ops-monitor
+    namespace: ops
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: ops-monitor-reader
+
+---
+# Database pod access in staging
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ops-monitor-database
+  namespace: staging
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get"]
+
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ops-monitor-database
+  namespace: staging
+subjects:
+  - kind: ServiceAccount
+    name: ops-monitor
+    namespace: ops
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ops-monitor-database
+
+---
+# Database pod access in production
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ops-monitor-database
+  namespace: production
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get"]
+
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ops-monitor-database
+  namespace: production
+subjects:
+  - kind: ServiceAccount
+    name: ops-monitor
+    namespace: ops
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ops-monitor-database
+
+---
+# Monitoring state access in ops namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ops-monitor-state
+  namespace: ops
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    resourceNames: ["ops-monitor-state"]
+    verbs: ["get", "patch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ops-monitor-state
+  namespace: ops
+subjects:
+  - kind: ServiceAccount
+    name: ops-monitor
+    namespace: ops
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ops-monitor-state
