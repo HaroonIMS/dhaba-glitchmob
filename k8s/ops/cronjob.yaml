@@ -19,7 +19,7 @@ spec:
 
           containers:
             - name: ops-monitor
-              image: 374211129794.dkr.ecr.ap-southeast-2.amazonaws.com/dhaba-glitchmob/ops-monitor:REPLACE_WITH_COMMIT_TAG
+              image: 374211129794.dkr.ecr.ap-southeast-2.amazonaws.com/dhaba-glitchmob/ops-monitor:d2284a7
               imagePullPolicy: IfNotPresent
 
               command:
