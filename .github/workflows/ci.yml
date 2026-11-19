@@ -1,0 +1,92 @@
+name: Dhaba Glitch Mob CI
+
+on:
+  push:
+    branches: [main, "GM-*"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Web - Lint, Test, Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  menu-api:
+    name: Menu API - Python
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: menu-api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: pytest
+
+  orders-api:
+    name: Orders API - Go
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: orders-api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+      - run: go test ./...
+      - run: go vet ./...
+      - run: go build ./...
+
+  kitchen-worker:
+    name: Kitchen Worker - Java
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kitchen-worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+      - run: mvn -B verify
+
+  stats-api:
+    name: Stats API - PHP
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: stats-api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          extensions: mbstring, xml, zip, pdo_sqlite
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - run: vendor/bin/phpunit
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+      - run: vendor/bin/phpstan analyse --no-progress
