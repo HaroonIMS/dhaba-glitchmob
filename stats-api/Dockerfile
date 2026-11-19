@@ -6,7 +6,12 @@ COPY . .
 RUN composer dump-autoload --no-dev --no-scripts --optimize
 
 FROM php:8.4-fpm-alpine
-RUN apk add --no-cache nginx
+
+RUN apk add --no-cache nginx postgresql-libs oniguruma \
+    && apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS postgresql-dev oniguruma-dev \
+    && docker-php-ext-install pdo_pgsql mbstring bcmath \
+    && apk del .build-deps
 WORKDIR /var/www/html
 COPY --from=vendor /app ./
 COPY docker/nginx.conf /etc/nginx/nginx.conf
