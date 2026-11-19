@@ -1,15 +1,27 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    // For `npm run dev` against the local compose stack (docker compose publishes none of these;
-    // use the gateway on :8088 instead, or run the APIs yourself on these ports).
-    proxy: {
-      '/api/menu': 'http://localhost:8000',
-      '/api/orders': 'http://localhost:8081',
-      '/api/stats': 'http://localhost:8082',
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const apiTarget = env.VITE_DEV_API_TARGET || 'http://localhost:8088';
+
+  return {
+    plugins: [react()],
+    server: {
+      proxy: {
+        '/api/menu': {
+          target: apiTarget,
+          changeOrigin: true,
+        },
+        '/api/orders': {
+          target: apiTarget,
+          changeOrigin: true,
+        },
+        '/api/stats': {
+          target: apiTarget,
+          changeOrigin: true,
+        },
+      },
     },
-  },
+  };
 });
