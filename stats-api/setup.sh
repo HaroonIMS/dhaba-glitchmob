@@ -13,6 +13,7 @@ cp -rn "$tmp/app/." . || true
 rm -rf "$tmp"
 rm -f tests/Unit/ExampleTest.php tests/Feature/ExampleTest.php .env
 
+composer config platform.php 8.4.1
 composer require predis/predis --no-interaction
 composer require --dev larastan/larastan:^3.0 --no-interaction
 
