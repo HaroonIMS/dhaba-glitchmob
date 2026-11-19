@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stats-api
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: stats-api
+  template:
+    metadata:
+      labels:
+        app: stats-api
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry
+      containers:
+        - name: stats-api
+          image: 374211129794.dkr.ecr.ap-southeast-2.amazonaws.com/dhaba-glitchmob/stats-api:3c3f06d
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: APP_ENV
+              value: production
+            - name: APP_DEBUG
+              value: "false"
+            - name: LOG_CHANNEL
+              value: stderr
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: stats-api-secret
+                  key: APP_KEY
+            - name: REDIS_CLIENT
+              value: predis
+            - name: REDIS_HOST
+              value: redis
+            - name: SESSION_DRIVER
+              value: file
+            - name: CACHE_STORE
+              value: array
+            - name: QUEUE_CONNECTION
+              value: sync
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 36
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 75m
+              memory: 96Mi
+            limits:
+              cpu: 200m
+              memory: 192Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stats-api
+spec:
+  selector:
+    app: stats-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+  type: ClusterIP

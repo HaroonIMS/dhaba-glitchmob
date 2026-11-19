@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: menu-api
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: menu-api
+  template:
+    metadata:
+      labels:
+        app: menu-api
+    spec:
+      imagePullSecrets:
+        - name: ecr-registry
+      containers:
+        - name: menu-api
+          image: 374211129794.dkr.ecr.ap-southeast-2.amazonaws.com/dhaba-glitchmob/menu-api:3c3f06d
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: POSTGRES_HOST
+              value: postgres
+            - name: POSTGRES_DB
+              value: dhaba
+            - name: POSTGRES_USER
+              value: dhaba
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: REDIS_HOST
+              value: redis
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 96Mi
+            limits:
+              cpu: 250m
+              memory: 192Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: menu-api
+spec:
+  selector:
+    app: menu-api
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+  type: ClusterIP
