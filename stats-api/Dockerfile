@@ -5,7 +5,7 @@ RUN composer install --no-dev --no-scripts --prefer-dist --no-progress --no-auto
 COPY . .
 RUN composer dump-autoload --no-dev --no-scripts --optimize
 
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 RUN apk add --no-cache nginx
 WORKDIR /var/www/html
 COPY --from=vendor /app ./
