@@ -1,0 +1,25 @@
+
+flowchart TB
+    DEV["Developer"] --> GH["GitHub Repository"]
+    GH --> ECR["AWS Elastic Container Registry"]
+    ECR --> EC2["AWS EC2 Instance"]
+
+    subgraph AWS["AWS Cloud"]
+        EC2 --> K3S["K3s Kubernetes Cluster"]
+        K3S --> STG["Staging Namespace"]
+        K3S --> PROD["Production Namespace"]
+        STG --> APP1["Application Pods"]
+        PROD --> APP2["Application Pods"]
+
+        EC2 --> NE["Node Exporter<br/>127.0.0.1:9100"]
+    end
+
+    subgraph LOCAL["Local Ubuntu Laptop"]
+        SSH["SSH Tunnel<br/>Port Forwarding"]
+        PROM["Prometheus<br/>127.0.0.1:9090"]
+        GRAF["Grafana<br/>127.0.0.1:3000"]
+        PROM --> GRAF
+    end
+
+    NE --> SSH
+    SSH --> PROM
