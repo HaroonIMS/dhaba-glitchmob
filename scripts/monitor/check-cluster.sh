@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Checks the cluster: node readiness, crashing pods, node CPU and memory,
-# persistent volume fill, and recent warning events.
-# Prints one line per check and exits 1 if any check fails.
-# Usage: check-cluster.sh [context]
+# persistent volume claims, and warning events.
+# Prints OK / WARN / FAIL lines and exits 1 if any check fails.
+# Usage: check-cluster.sh [context]   (no argument inside the cluster)
 set -uo pipefail
 
-CONTEXT="${1:-glitchmob-shared}"
-K="kubectl --context $CONTEXT"
+CONTEXT="${1:-}"
+K="kubectl ${CONTEXT:+--context $CONTEXT}"
 FAILURES=0
 
 ok()   { echo "OK    $*"; }
@@ -33,7 +33,7 @@ else
   fail "problem pods: $(echo $BAD_PODS | tr '\n' ' ')"
 fi
 
-# 3. Node CPU and memory use (needs metrics-server; skipped if unavailable)
+# 3. Node CPU and memory (needs metrics-server)
 if TOP=$($K top nodes --no-headers 2>/dev/null) && [[ -n "$TOP" ]]; then
   while read -r name cpu cpu_pct mem mem_pct; do
     cpu_pct=${cpu_pct%\%}; mem_pct=${mem_pct%\%}
@@ -57,13 +57,12 @@ else
   fail "unbound volumes: $(echo $PVC_BAD | tr '\n' ' ')"
 fi
 
-# 5. Recent warning events (last 10 minutes)
+# 5. Warning events
 WARNINGS=$($K get events -A --field-selector type=Warning --no-headers 2>/dev/null | wc -l)
 if (( WARNINGS == 0 )); then
   ok "no warning events"
 else
-  warn "$WARNINGS warning event(s) in the cluster; latest:"
-  $K get events -A --field-selector type=Warning --sort-by=.lastTimestamp 2>/dev/null | tail -3
+  warn "$WARNINGS warning event(s) in the cluster"
 fi
 
 if (( FAILURES > 0 )); then

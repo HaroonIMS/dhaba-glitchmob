@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ops-monitor-state
+  namespace: ops
+data:
+  state: "OK"
+  last_summary: "0"
