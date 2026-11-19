@@ -7,7 +7,7 @@ A restaurant ordering application built as part of ShipIt Sprint 3: Production o
 
 - **Sidrah** — Team Lead, CI/CD and Deployment
 - **Amir** — Application Development and Docker
-- **Haroom** — Kubernetes and Infrastructure
+- **Haroon** — Kubernetes and Infrastructure
 
 ## Project Overview
 
